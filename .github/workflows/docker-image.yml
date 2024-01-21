@@ -34,9 +34,6 @@ update_yaml:
     - name: Display Event JSON
       run: echo "${{ toJson(github.event) }}"
 
-    - name: Display PR Number
-      run: echo "PR Number: ${{ github.event.number }}"
-
     - name: Display Commit SHA
       run: echo "Commit SHA: ${{ github.event.after }}"
 
