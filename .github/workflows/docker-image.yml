@@ -6,8 +6,6 @@ on:
     branches: [ "dev" ]
   pull_request:  
     branches: [ "dev" ]
-    types:
-      - closed  
 
 jobs:
 
@@ -27,7 +25,7 @@ jobs:
         run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
  
   update_yaml:
-    if: github.event.pull_request.merged == true
+    if: github.base_ref == 'dev' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
