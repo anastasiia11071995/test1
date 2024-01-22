@@ -1,7 +1,6 @@
 name: Docker Image CI
 
 on:
-
   push:
     branches: [ "dev" ]
   pull_request:  
