@@ -33,5 +33,10 @@ jobs:
       uses: mikefarah/yq@master
       with:
         cmd: yq -i '.image.tag = "$GITHUB_RUN_NUMBER"' 'https://github.com/anastasiia11071995/test_chatrs.git/values.dev.yamlvalues.dev.yaml'
-
+ 
+    - name: Print github context
+      run: nnnnnn
+      continue-on-error: true
+      env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
 
