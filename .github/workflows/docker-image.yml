@@ -24,7 +24,7 @@ jobs:
         run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
  
   update_yaml:
-    if: github.base_ref == 'dev' && github.event.pull_request.merged == true
+    #if: github.base_ref == 'dev' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +33,7 @@ jobs:
       uses: mikefarah/yq@master
       with:
         cmd: yq -i '.image.tag = "$GITHUB_RUN_NUMBER"' 'https://github.com/anastasiia11071995/test_chatrs.git/values.dev.yamlvalues.dev.yaml'
+    - name: Print github context
+      continue-on-error: true
+      env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
