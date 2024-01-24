@@ -44,6 +44,8 @@ jobs:
     
     - name: Commit and push changes
       run: |
+        git config --global user.email "github-actions@github.com"
+        git config --global user.name "GitHub Actions"
         git add values.dev.yaml
         git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
         git push origin uat
