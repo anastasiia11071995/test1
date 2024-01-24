@@ -63,4 +63,4 @@ jobs:
         run: |
           git add values.${GITHUB_REF##*/}.yaml
           git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
-          git push origin ${{ github.event.ref_type == 'branch' && github.event.ref }}  # Push only if it's a branch event
+          git push origin ${{ GITHUB_REF }}
