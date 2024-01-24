@@ -4,7 +4,6 @@ const fs = require('fs')
 const headFile = fs.readFileSync('./.git/HEAD', 'utf-8')
 const headRef = headFile.split(': ')[1]?.trim()
 const PORT = process.env.PORT ?? 80
-
 if (headRef)
     head = fs.readFileSync('./.git/' + headRef, 'utf-8')
 else head = headFile
