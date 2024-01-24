@@ -56,5 +56,4 @@ jobs:
       run: |
         git add values.dev.yaml
         git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
-        git push origin uat
-
+        git push origin 
