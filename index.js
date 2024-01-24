@@ -2,7 +2,7 @@ const http = require('http')
 const os = require('os')
 const fs = require('fs')
 const headFile = fs.readFileSync('./.git/HEAD', 'utf-8')
-const headRef = headFile.split(': ')[1]?.trim()
+const headRef = headFile.split(': ')[1]?.trim() 
 const PORT = process.env.PORT ?? 80
 if (headRef)
     head = fs.readFileSync('./.git/' + headRef, 'utf-8')
