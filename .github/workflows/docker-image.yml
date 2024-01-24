@@ -26,6 +26,7 @@ jobs:
         run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
  
   update_yaml:
+    needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
 
