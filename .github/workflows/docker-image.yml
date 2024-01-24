@@ -2,15 +2,18 @@ name: Docker Image CI
 
 on:
   push:
-    branches: 
-    - "dev"
-  pull_request:  
-    branches:  
-    - "dev" 
-    types: [opened, synchronize]  
+    branches:
+      - dev
+      - main
+      - uat
+  pull_request:
+    branches:
+      - dev
+      - main
+      - uat
+    types: [opened, synchronize]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
 
@@ -20,40 +23,44 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-                
+
       - uses: actions/checkout@v3
       - name: Build the Docker image
         run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
- 
+
   update_yaml:
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/uat'))
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4.1.1
-      with:
-        repository: anastasiia11071995/test_chatrs
-        ref: dev
-        ssh-key: ${{ secrets.CHATRS_KEY }}
-        #fetch-depth: 0
-              
-    
-    - name: Update tag in yaml
-      run: |
-        ls
-        git log --graph --oneline
-        yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.dev.yaml 
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: anastasiia11071995/test_chatrs
+          ssh-key: ${{ secrets.CHATRS_KEY }}
 
-    - name: Configure Git
-      run: |
-        git config --global user.email "github-actions@github.com"
-        git config --global user.name "GitHub Actions"
-        git config --global credential.helper store
-    
-    - name: Commit and push changes
-      run: |
-        git add values.dev.yaml
-        git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
-        git push origin 
+      - name: Update tag in yaml
+        run: |
+          ls
+          git log --graph --oneline
+          if [ "$GITHUB_REF" == "refs/heads/dev" ]; then
+            yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.dev.yaml
+          elif [ "$GITHUB_REF" == "refs/heads/main" ]; then
+            yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.main.yaml
+          elif [ "$GITHUB_REF" == "refs/heads/uat" ]; then
+            yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.uat.yaml
+          fi
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global credential.helper store
+
+      - name: Commit and push changes
+        run: |
+          git add values.${GITHUB_REF##*/}.yaml
+          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+          git push origin ${{ github.event.ref_type == 'branch' && github.event.ref }}  # Push only if it's a branch event
