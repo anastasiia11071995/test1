@@ -31,16 +31,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+      with:
+        repository: anastasiia11071995/test_chatrs
+        ref: uat
     
     - name: Update tag in yaml
-      uses: mikefarah/yq@master
-      with:
-        cmd: yq -i '.image.tag = "$GITHUB_RUN_NUMBER"' 'https://github.com/anastasiia11071995/test_chatrs.git/values.dev.yamlvalues.dev.yaml'
- 
-    - name: Print github context
-      run: nnnnnn
-      continue-on-error: true
-      env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-
+      run: |
+        yq -i '.image.tag = "${GITHUB_RUN_NUMBER}"' values.dev.yaml
+    
+    - name: Commit and push changes
+      run: |
+        git add values.dev.yaml
+        git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+        git push origin uat
 
