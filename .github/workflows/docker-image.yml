@@ -44,7 +44,7 @@ jobs:
       run: |
         ls
         git log --graph --oneline
-        yq -i '.image.tag = "${GITHUB_RUN_NUMBER}"' values.dev.yaml 
+        yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.dev.yaml 
 
     - name: Configure Git
       run: |
