@@ -37,7 +37,7 @@ jobs:
         repository: anastasiia11071995/test_chatrs
         ref: develop
         ssh-key: ${{ secrets.CHATRS_KEY }}
-        #fetch-depth: 0
+        fetch-depth: 0
               
     
     - name: Update tag in yaml
