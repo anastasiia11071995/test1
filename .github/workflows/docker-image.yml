@@ -30,26 +30,20 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
 
-    env:
-      CHATRS_KEY: ${{ secrets.CHATRS_KEY }}
-
     steps:
-
-    - name: Checkout the repository
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v4.1.1
       with:
         repository: anastasiia11071995/test_chatrs
-        ref: uat
+        ref: develop
+        ssh-key: ${{ secrets.CHATRS_KEY }}
+        #fetch-depth: 0
+              
     
     - name: Update tag in yaml
       run: |
-        yq -i '.image.tag = "${GITHUB_RUN_NUMBER}"' values.dev.yaml
-
-    - name: Configure Git
-      run: |
-        git config --global user.email "github-actions@github.com"
-        git config --global user.name "GitHub Actions"
-        git config --global credential.helper store    
+        ls
+        yq -i '.image.tag = "${GITHUB_RUN_NUMBER}"' values.dev.yaml 
     
     - name: Commit and push changes
       run: |
