@@ -8,6 +8,7 @@ const PORT = process.env.PORT ?? 80
 if (headRef)
     head = fs.readFileSync('./.git/' + headRef, 'utf-8')
 else head = headFile
+
 http.createServer((req, res) => {
     res.end(os.hostname + ' ' + head)
 }).listen(PORT, ()=> {
