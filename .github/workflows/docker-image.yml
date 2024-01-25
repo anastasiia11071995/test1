@@ -1,4 +1,4 @@
-name: Docker Image CI for Dev
+name: Docker Image CI for UAT
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           repository: anastasiia11071995/test_chatrs
-          ref: dev
+          ref: uat
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
       - name: Update tag in yaml
