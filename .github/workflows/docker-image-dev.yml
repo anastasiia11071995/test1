@@ -39,9 +39,10 @@ jobs:
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
       - name: Update tag in yaml
-        run: |
+        run: |  
           ls
           git log --graph --oneline
+          branch_name=$(echo "${GITHUB_REF#refs/heads/}")
           yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.dev.yaml 
 
       - name: Configure Git
