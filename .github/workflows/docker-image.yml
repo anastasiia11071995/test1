@@ -1,0 +1,56 @@
+name: Docker Image CI for UAT
+
+on:
+  push:
+    branches:
+      - uat
+  pull_request:
+    branches:
+      - uat
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Docker Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
+
+  update_yaml_uat:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: anastasiia11071995/test_chatrs
+          ref: uat
+          ssh-key: ${{ secrets.CHATRS_KEY }}
+    
+      - name: Update tag in yaml
+        run: |
+          ls
+          git log --graph --oneline
+          yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.uat.yaml 
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global credential.helper store
+    
+      - name: Commit and push changes
+        run: |
+          git add values.uat.yaml
+          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+          git push origin uat
