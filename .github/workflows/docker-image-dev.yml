@@ -40,9 +40,7 @@ jobs:
     
       - name: Update tag in yaml
         run: |  
-          ls
-          git log --graph --oneline
-          branch_name=$(echo "${GITHUB_REF#refs/heads/}")
+
           yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.dev.yaml 
 
       - name: Configure Git
@@ -54,5 +52,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.dev.yaml
-          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER} in DEV"
           git push origin dev
