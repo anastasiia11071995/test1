@@ -1,36 +1,41 @@
 name: Docker Image CI for UAT
 
-
 on:
   push:
     branches:
       - uat
+      - dev
   pull_request:
     branches:
       - uat
+      - dev
     types: [opened, synchronize]
 
 jobs:
-# build:
-#    runs-on: ubuntu-latest
-
-#    steps:
-#      - name: Docker Login
-#        uses: docker/login-action@v3.0.0
- #       with:
- #         username: ${{ secrets.DOCKERHUB_USER }}
- #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
- #     - uses: actions/checkout@v3
- #     - name: Build the Docker image
- #       run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
-
-  update_yaml_uat:
-  #  needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+  build:
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/uat' && github.actor != 'dependabot[bot]' && github.actor != 'dev'
     runs-on: ubuntu-latest
 
     steps:
+      - name: Docker Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
+
+  update_yaml_uat:
+    needs: build
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/uat' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+    
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
@@ -45,7 +50,12 @@ jobs:
 
       - name: Update tag in yaml
         run: |
-          yq -i ".image.tag = env(TAG_NUM)" values.uat.yaml
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/uat" ]; then
+             yq -i ".image.tag = env(TAG_NUM)" values.uat.yaml
+          else
+             yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.main.yaml
+          fi
+
       - name: Configure Git
         run: |
           git config --global user.email "github-actions@github.com"
