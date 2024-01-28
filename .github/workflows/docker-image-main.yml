@@ -52,5 +52,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.main.yaml
-          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER} in MAIN"
           git push origin main
