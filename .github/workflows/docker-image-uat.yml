@@ -40,7 +40,8 @@ jobs:
     
       - name: Update tag in yaml
         run: |
-          yq -i ".image.tag = values.dev.yaml.image.tag" values.uat.yaml
+          yq eval '.image.tag = strenv(values.dev.yaml.image.tag)' -i values.uat.yaml
+
          # yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.uat.yaml 
 
       - name: Configure Git
