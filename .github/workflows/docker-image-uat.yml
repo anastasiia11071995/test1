@@ -1,6 +1,5 @@
 name: Docker Image CI for UAT
 
-
 on:
   push:
     branches:
