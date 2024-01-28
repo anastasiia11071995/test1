@@ -53,5 +53,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.uat.yaml
-          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER} in UAT"
           git push origin uat
