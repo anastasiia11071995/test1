@@ -50,13 +50,15 @@ jobs:
 
       - name: Update tag in yaml
         run: |
-          cat values.uat.yaml  # Print the content before update
-          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/uat" ]; then
-            yq -i ".image.tag = env(TAG_NUM)" values.uat.yaml
+          cat values.uat.yaml 
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/uat" ] && [ "${{ github.actor }}" == "dev" ]; then
+            NEW_TAG="${{ env.TAG_NUM }}"
           else
-            yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.main.yaml
+            NEW_TAG="${GITHUB_RUN_NUMBER}"
           fi
-          cat values.uat.yaml  # Print the content after update
+          yq -i ".image.tag = \"$NEW_TAG\"" values.uat.yaml
+          cat values.uat.yaml 
+
 
       - name: Configure Git
         run: |
