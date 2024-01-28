@@ -38,12 +38,15 @@ jobs:
           ref: uat
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
-      - name: Update tag in yaml
+      - name: Set tag_num environment variable
         run: |
           TAG_NUM=$(yq eval '.image.tag' values.dev.yaml)
           echo "TAG_NUM=$TAG_NUM" >> $GITHUB_ENV
           echo "TAG_NUM=$TAG_NUM" >> $GITHUB_ENV_FILE
-          yq eval ".image.tag = env(TAG_NUM)" -i values.uat.yaml
+
+      - name: Update tag in yaml
+        run: |
+          yq -i ".image.tag = env(TAG_NUM)" values.uat.yaml
       - name: Configure Git
         run: |
           git config --global user.email "github-actions@github.com"
