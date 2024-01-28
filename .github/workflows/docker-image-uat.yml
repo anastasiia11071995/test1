@@ -41,8 +41,8 @@ jobs:
       - name: Update tag in yaml
         run: |
           TAG_NUM=$(yq eval '.image.tag' values.dev.yaml)
-
-          yq -i ".image.tag = \"${TAG_NUM}\"" values.uat.yaml 
+          echo "TAG_NUM=$TAG_NUM" >> $GITHUB_ENV
+          yq -i ".image.tag = "env(TAG_NUM)" -i values.uat.yaml 
 
       - name: Configure Git
         run: |
