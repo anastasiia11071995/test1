@@ -42,7 +42,7 @@ jobs:
         run: |
           TAG_NUM=$(yq eval '.image.tag' values.dev.yaml)
 
-         # yq -i ".image.tag = \"${TAG_NUM}\"" values.uat.yaml 
+          yq -i ".image.tag = \"${TAG_NUM}\"" values.uat.yaml 
 
       - name: Configure Git
         run: |
