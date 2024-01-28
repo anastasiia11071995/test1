@@ -40,9 +40,9 @@ jobs:
     
       - name: Update tag in yaml
         run: |
-          cp values.dev.yaml values.uat.yaml
+          TAG_NUM=$(yq eval '.image.tag' values.dev.yaml)
 
-         # yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.uat.yaml 
+         # yq -i ".image.tag = \"${TAG_NUM}\"" values.uat.yaml 
 
       - name: Configure Git
         run: |
