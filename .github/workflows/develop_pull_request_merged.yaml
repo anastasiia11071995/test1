@@ -1,0 +1,37 @@
+name: Deploy to DEV
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+  pull_request:
+    types: [ closed ]
+    branches: [ dev ]
+jobs:
+  update_yaml_dev:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: anastasiia11071995/play-code-charts
+          ref: dev
+          ssh-key: ${{ secrets.CHATRS_KEY }}
+    
+      - name: Update tag in yaml
+        run: |  
+          yq -i ".webplatform.deployment.version = \"${{ github.base_ref }}_latest\"" playcode-chart-WP/values.dev.yaml
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global credential.helper store
+    
+      - name: Commit and push changes
+        run: |
+          git add playcode-chart-WP/values.dev.yaml
+          git commit -m "Update image tag to ${{ github.base_ref }}_latest in DEV"
+          git push origin dev
