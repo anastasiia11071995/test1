@@ -9,7 +9,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    
+
       - name: Check out code
         uses: actions/checkout@v4
 
@@ -52,7 +52,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
+            ghcr.io/${{ github.repository_owner }}/test1:$release-tag.txt,
             ghcr.io/${{ github.repository_owner }}/test1:uat_latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -94,5 +94,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.staging.yaml
-          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in UAT"
+          git commit -m "Update image tag to $release-tag in UAT"
           git push origin uat
