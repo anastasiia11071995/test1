@@ -37,10 +37,10 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
-             echo "{release-tag}={$(echo "${{ github.head_ref }} | sed 's/^release\///'")}" >> $GITHUB_OUTPUT
+             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT
              
           else
-            echo "{release-tag}={v_${{ github.run_id }}}" >> $GITHUB_OUTPUT
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build and push Docker image
