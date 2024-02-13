@@ -16,13 +16,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
-          repository: anastasiia11071995/play-code-charts
+          repository: anastasiia11071995/test_chatrs
           ref: dev
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
       - name: Update tag in yaml
         run: |  
-          yq -i ".webplatform.deployment.version = \"${{ github.base_ref }}_latest\"" playcode-chart-WP/values.dev.yaml
+          yq -i ".image.tag = \"${{ github.base_ref }}_latest\"" values.dev.yaml
 
       - name: Configure Git
         run: |
@@ -32,6 +32,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add playcode-chart-WP/values.dev.yaml
+          git add values.dev.yaml
           git commit -m "Update image tag to ${{ github.base_ref }}_latest in DEV"
           git push origin dev
