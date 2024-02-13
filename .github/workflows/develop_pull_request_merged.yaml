@@ -39,7 +39,7 @@ jobs:
           if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
              echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')" > release-tag.txt
           else
-            echo "::set-output name=release-tag::v_${{ github.run_id }}" > release-tag.txt
+            echo "v_${{ github.run_id }}" > release-tag.txt
             cat release-tag.txt
           fi
           release-tag=`cat release-tag.txt`
