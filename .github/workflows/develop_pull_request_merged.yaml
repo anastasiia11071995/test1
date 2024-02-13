@@ -42,7 +42,7 @@ jobs:
             echo "v_${{ github.run_id }}" > release-tag.txt
             cat release-tag.txt
           fi
-          release-tag=`cat release-tag.txt`
+          export release-tag=$(cat release-tag.txt)
 
       - name: Upload math result for job 1
         uses: actions/upload-artifact@v4
