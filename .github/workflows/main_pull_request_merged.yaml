@@ -27,7 +27,7 @@ jobs:
           
       - name: Update tag in yaml
         run: |
-          yq -i ".image.tag = \"$TAG\"" values.prod.yaml
+          yq -i ".image.tag = \"$TAG\"" values.main.yaml
         
 
       - name: Configure Git
