@@ -37,19 +37,11 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
-             echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')" > release-tag.txt
+             echo "{release-tag}={"$(echo ${{ github.head_ref }} | sed 's/^release\///')"}" >> $GITHUB_OUTPUT
+             
           else
-            echo "v_${{ github.run_id }}" > release-tag.txt
-            cat release-tag.txt
+            echo "{release-tag}={v_${{ github.run_id }}}" >> $GITHUB_OUTPUT
           fi
-          export release-tag=$(cat release-tag.txt)
-
-      - name: Upload math result for job 1
-        uses: actions/upload-artifact@v4
-        with:
-          name: tag_to_save
-          path: release-tag.txt  
-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -57,7 +49,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/test1:$release-tag,
+            ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
             ghcr.io/${{ github.repository_owner }}/test1:dev_latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
@@ -73,19 +65,11 @@ jobs:
         with:
           repository: anastasiia11071995/test_chatrs
           ref: dev
-          ssh-key: ${{ secrets.CHATRS_KEY }}
-
-      - name: Download release-tag 
-        uses: actions/download-artifact@v4
-        with:
-          name: tag_to_save
-      - shell: bash
-        run: |
-          release-tag=`cat release-tag.txt`           
+          ssh-key: ${{ secrets.CHATRS_KEY }}        
     
       - name: Update tag in yaml
         run: |  
-          yq -i ".image.tag = \"$release-tag\"" values.dev.yaml
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.dev.yaml
 
       - name: Configure Git
         run: |
@@ -96,5 +80,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.dev.yaml
-          git commit -m "Update image tag to $release-tag in DEV"
+          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in DEV"
           git push origin dev
