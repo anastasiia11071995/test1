@@ -34,10 +34,16 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
-             echo "::set-output name=release-tag::$(echo ${{ github.head_ref }} | sed 's/^release\///')"
+             echo "::set-output name=release-tag::$(echo ${{ github.head_ref }} | sed 's/^release\///')" > release-tag.txt
           else
-            echo "::set-output name=release-tag::v_${{ github.run_id }}"
+            echo "::set-output name=release-tag::v_${{ github.run_id }}" > release-tag.txt
           fi
+
+      - name: Upload math result for job 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: tag_to_save
+          path: release-tag.txt  
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -64,10 +70,18 @@ jobs:
           repository: anastasiia11071995/test_chatrs
           ref: uat
           ssh-key: ${{ secrets.CHATRS_KEY }}
+
+      - name: Download release-tag 
+        uses: actions/download-artifact@v4
+        with:
+          name: tag_to_save
+      - shell: bash
+        run: |
+          release-tag=`cat release-tag.txt` 
     
-      - name: Update tag in yaml
+      - name: Update tag in 
         run:
-          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.staging.yaml
+          yq -i ".image.tag = \"$release-tag\"" values.staging.yaml
         
 
       - name: Configure Git
