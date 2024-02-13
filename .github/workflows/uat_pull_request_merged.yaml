@@ -28,7 +28,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.TOKEN_GITHUB }}
 
       - name: Determine and set Docker Tag
         id: set-tag
@@ -45,8 +45,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/web-platform:${{ steps.set-tag.outputs.release-tag }},
-            ghcr.io/${{ github.repository_owner }}/web-platform:uat_latest
+            ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
+            ghcr.io/${{ github.repository_owner }}/test1:uat_latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -61,13 +61,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
-          repository: anastasiia11071995/play-code-charts
+          repository: anastasiia11071995/test_chatrs
           ref: uat
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
       - name: Update tag in yaml
         run:
-          yq -i ".webplatform.deployment.version = \"${{ steps.set-tag.outputs.release-tag }}\"" playcode-chart-WP/values.staging.yaml
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.staging.yaml
         
 
       - name: Configure Git
@@ -78,6 +78,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add playcode-chart-WP/values.staging.yaml
+          git add values.staging.yaml
           git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in UAT"
           git push origin uat

@@ -27,7 +27,7 @@ jobs:
           
       - name: Update tag in yaml
         run: |
-          yq -i ".webplatform.deployment.version = \"$TAG\"" playcode-chart-WP/values.prod.yaml
+          yq -i ".image.tag = \"$TAG\"" values.prod.yaml
         
 
       - name: Configure Git
@@ -38,6 +38,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add playcode-chart-WP/values.prod.yaml
+          git add values.prod.yaml
           git commit -m "Update image tag to $TAG in Main"
           git push origin main
