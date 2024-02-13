@@ -37,7 +37,7 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
-             echo "{release-tag}={$(echo ${{ github.head_ref }} | sed 's/^release\///')}" >> $GITHUB_OUTPUT
+             echo "{release-tag}={$(echo "${{ github.head_ref }} | sed 's/^release\///'")}" >> $GITHUB_OUTPUT
              
           else
             echo "{release-tag}={v_${{ github.run_id }}}" >> $GITHUB_OUTPUT
@@ -45,6 +45,8 @@ jobs:
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
         with:
           context: .
           push: true
@@ -68,6 +70,8 @@ jobs:
           ssh-key: ${{ secrets.CHATRS_KEY }}        
     
       - name: Update tag in yaml
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
         run: |  
           yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.dev.yaml
 
