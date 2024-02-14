@@ -21,11 +21,8 @@ jobs:
     
       - name: Set TAG environment variable
         run: |
-          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          TAG=$(git describe --tags --abbrev=0)
 
-
-
-          
       - name: Update tag in yaml
         run: |
           yq -i ".image.tag = \"$TAG\"" values.${{ github.ref_name }}.yaml
