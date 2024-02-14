@@ -4,32 +4,38 @@ on:
   push:
     branches:
       - uat
+      - dev
   pull_request:
     branches:
       - uat
+      - dev
     types: [opened, synchronize]
 
 jobs:
-# build:
-#    runs-on: ubuntu-latest
-
-#    steps:
-#      - name: Docker Login
-#        uses: docker/login-action@v3.0.0
- #       with:
- #         username: ${{ secrets.DOCKERHUB_USER }}
- #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
- #     - uses: actions/checkout@v3
- #     - name: Build the Docker image
- #       run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
-
-  update_yaml_uat:
-  #  needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+  build:
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/uat' && github.actor != 'dependabot[bot]' && github.actor != 'dev'
     runs-on: ubuntu-latest
 
     steps:
+      - name: Docker Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --push --tag anastasiiag/5678:$GITHUB_RUN_NUMBER
+
+  update_yaml_uat:
+    needs: build
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/uat' 
+    runs-on: ubuntu-latest
+
+    steps:
+    
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
@@ -37,11 +43,22 @@ jobs:
           ref: uat
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
+      - name: Set tag_num environment variable
+        run: |
+          TAG_NUM=$(yq eval '.image.tag' values.dev.yaml)
+          echo "TAG_NUM=$TAG_NUM" >> $GITHUB_ENV
+
       - name: Update tag in yaml
         run: |
-          cp values.dev.yaml values.uat.yaml
+          cat values.uat.yaml 
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/uat" ] && [ "${{ github.actor }}" == "dev" ]; then
+            NEW_TAG="${{ env.TAG_NUM }}"
+          else
+            NEW_TAG="${GITHUB_RUN_NUMBER}"
+          fi
+          yq -i ".image.tag = \"$NEW_TAG\"" values.uat.yaml
+          cat values.uat.yaml 
 
-         # yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.uat.yaml 
 
       - name: Configure Git
         run: |

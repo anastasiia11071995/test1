@@ -1,0 +1,95 @@
+name: Deploy to DEV
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+jobs:
+
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Determine and set Docker Tag
+        id: set-tag
+        run: |
+          if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
+             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT      
+          else
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
+            ghcr.io/${{ github.repository_owner }}/test1:${{ github.ref_name }}_latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+  update_yaml_dev:
+    needs: build-and-deploy
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Determine and set Docker Tag
+        id: set-tag
+        run: |
+          if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
+             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT
+             
+          else
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: anastasiia11071995/test_chatrs
+          ref: ${{ github.ref_name }}
+          ssh-key: ${{ secrets.CHATRS_KEY }}        
+    
+      - name: Update tag in yaml
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
+        run: |  
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.ref_name }}.yaml
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global credential.helper store
+    
+      - name: Commit and push changes
+        run: |
+          git add values.${{ github.ref_name }}.yaml
+          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.ref_name }}"
+          git push origin ${{ github.ref_name }}

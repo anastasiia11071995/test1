@@ -1,0 +1,41 @@
+name: Deploy to MAIN
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_yaml_main:
+    runs-on: ubuntu-latest
+
+    steps:
+    
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: anastasiia11071995/play-code-charts
+          ref: ${{ github.ref_name }}
+          ssh-key: ${{ secrets.CHATRS_KEY }}
+    
+      - name: Set TAG environment variable
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          
+      - name: Update tag in yaml
+        run: |
+          yq -i ".image.tag = \"$TAG\"" values.${{ github.ref_name }}.yaml
+        
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global credential.helper store
+    
+      - name: Commit and push changes
+        run: |
+          git add values.${{ github.ref_name }}.yaml
+          git commit -m "Update image tag to $TAG in ${{ github.ref_name }}"
+          git push origin ${{ github.ref_name }}
