@@ -1,5 +1,4 @@
 name: Deploy to MAIN
-
 on:
   workflow_dispatch:
   push:
