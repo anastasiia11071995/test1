@@ -27,11 +27,9 @@ jobs:
             echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
     
-      - name: Set TAG environment variable
+      - name: Git tag
         run: |
           git tag ${{ steps.set-tag.outputs.release-tag }}
-        env: 
-          release-tag: ${{ steps.set-tag.outputs.release-tag }}
 
       - name: Update tag in yaml
         env: 
