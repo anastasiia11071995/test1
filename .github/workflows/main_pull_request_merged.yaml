@@ -1,5 +1,4 @@
 name: Deploy to MAIN
-
 on:
   workflow_dispatch:
   push:
@@ -22,7 +21,8 @@ jobs:
       - name: Set TAG environment variable
         run: |
           TAG=$(git describe --tags --abbrev=0)
-          
+          echo "TAG=$TAG"
+
       - name: Update tag in yaml
         run: |
           yq -i ".image.tag = \"$TAG\"" values.${{ github.ref_name }}.yaml
