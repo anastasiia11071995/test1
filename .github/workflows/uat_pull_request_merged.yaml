@@ -1,11 +1,11 @@
 name: Deploy to UAT
 on:
   workflow_dispatch:
-  pull_request:
-    types: [closed]
-    branches: [uat]
-
+  push:
+    branches:
+      - uat
 jobs:
+
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
@@ -34,55 +34,53 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
-             echo "::set-output name=release-tag::$(echo ${{ github.head_ref }} | sed 's/^release\///')" > release-tag.txt
+             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT      
           else
-            echo "::set-output name=release-tag::v_${{ github.run_id }}" > release-tag.txt
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
-
-      - name: Upload math result for job 1
-        uses: actions/upload-artifact@v4
-        with:
-          name: tag_to_save
-          path: release-tag.txt  
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
         with:
           context: .
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
-            ghcr.io/${{ github.repository_owner }}/test1:uat_latest
+            ghcr.io/${{ github.repository_owner }}/test1:${{ github.base_ref }}_latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
   update_yaml_uat:
     needs: build-and-deploy
-    if: |
-      github.event_name == 'push' && github.ref == 'refs/heads/uat' 
+
     runs-on: ubuntu-latest
 
     steps:
-    
+
+      - name: Determine and set Docker Tag
+        id: set-tag
+        run: |
+          if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
+             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT
+             
+          else
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
           repository: anastasiia11071995/test_chatrs
-          ref: uat
-          ssh-key: ${{ secrets.CHATRS_KEY }}
-
-      - name: Download release-tag 
-        uses: actions/download-artifact@v4
-        with:
-          name: tag_to_save
-      - shell: bash
-        run: |
-          release-tag=`cat release-tag.txt` 
+          ref: ${{ github.base_ref }}
+          ssh-key: ${{ secrets.CHATRS_KEY }}        
     
-      - name: Update tag in 
-        run:
-          yq -i ".image.tag = \"$release-tag\"" values.staging.yaml
-        
+      - name: Update tag in yaml
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
+        run: |  
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.base_ref }}.yaml
 
       - name: Configure Git
         run: |
@@ -92,6 +90,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add values.staging.yaml
-          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in UAT"
-          git push origin uat
+          git add values.${{ github.base_ref }}.yaml
+          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.base_ref }}"
+          git push origin ${{ github.base_ref }}
