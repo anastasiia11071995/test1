@@ -21,7 +21,9 @@ jobs:
     
       - name: Set TAG environment variable
         run: |
-          TAG="git describe --tags --abbrev=0"
+          TAG=$(git describe --tags --abbrev=0)
+          echo "TAG is $TAG"
+
           
       - name: Update tag in yaml
         run: |
