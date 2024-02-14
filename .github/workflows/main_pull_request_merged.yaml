@@ -32,6 +32,7 @@ jobs:
           git tag ${{ steps.set-tag.outputs.release-tag }}
           git push origin ${{ steps.set-tag.outputs.release-tag }}
           TAG=$(git describe --tags --abbrev=0)
+          echo "TAG= $TAG"
 
       - name: Update tag in yaml
         run: |
