@@ -4,13 +4,17 @@ on:
   push:
     branches:
       - uat
+      - dev
   pull_request:
     branches:
       - uat
+      - dev
     types: [opened, synchronize]
 
 jobs:
   build:
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/uat' && github.actor != 'dependabot[bot]' && github.actor != 'dev'
     runs-on: ubuntu-latest
 
     steps:
@@ -26,10 +30,12 @@ jobs:
 
   update_yaml_uat:
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/uat' 
     runs-on: ubuntu-latest
 
     steps:
+    
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
@@ -37,11 +43,22 @@ jobs:
           ref: uat
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
+      - name: Set tag_num environment variable
+        run: |
+          TAG_NUM=$(yq eval '.image.tag' values.dev.yaml)
+          echo "TAG_NUM=$TAG_NUM" >> $GITHUB_ENV
+
       - name: Update tag in yaml
         run: |
-          ls
-          git log --graph --oneline
-          yq -i ".image.tag = \"${GITHUB_RUN_NUMBER}\"" values.uat.yaml 
+          cat values.uat.yaml 
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.ref }}" == "refs/heads/uat" ] && [ "${{ github.actor }}" == "dev" ]; then
+            NEW_TAG="${{ env.TAG_NUM }}"
+          else
+            NEW_TAG="${GITHUB_RUN_NUMBER}"
+          fi
+          yq -i ".image.tag = \"$NEW_TAG\"" values.uat.yaml
+          cat values.uat.yaml 
+
 
       - name: Configure Git
         run: |
@@ -52,5 +69,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.uat.yaml
-          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER}"
+          git commit -m "Update image tag to ${GITHUB_RUN_NUMBER} in UAT"
           git push origin uat
