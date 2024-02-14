@@ -35,6 +35,7 @@ jobs:
 
       - name: Update tag in yaml
         run: |
+          echo "TAG= $TAG"
           yq -i ".image.tag = \"$TAG\"" values.${{ github.ref_name }}.yaml
         
 
