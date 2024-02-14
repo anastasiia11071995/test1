@@ -48,7 +48,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
-            ghcr.io/${{ github.repository_owner }}/test1:${{ github.base_ref }}_latest
+            ghcr.io/${{ github.repository_owner }}/test1:${{ github.fef_name }}_latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
@@ -73,14 +73,14 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           repository: anastasiia11071995/test_chatrs
-          ref: ${{ github.base_ref }}
+          ref: ${{ github.fef_name }}
           ssh-key: ${{ secrets.CHATRS_KEY }}        
     
       - name: Update tag in yaml
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}
         run: |  
-          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.base_ref }}.yaml
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.fef_name }}.yaml
 
       - name: Configure Git
         run: |
@@ -90,6 +90,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add values.${{ github.base_ref }}.yaml
-          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.base_ref }}"
-          git push origin ${{ github.base_ref }}
+          git add values.${{ github.fef_name }}.yaml
+          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.fef_name }}"
+          git push origin ${{ github.fef_name }}
