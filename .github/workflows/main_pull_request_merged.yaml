@@ -21,9 +21,8 @@ jobs:
     
       - name: Set TAG environment variable
         run: |
-          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "No tags available")
-          echo "TAG is $TAG"
-        shell: bash
+          TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+
 
 
           
