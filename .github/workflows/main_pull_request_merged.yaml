@@ -32,6 +32,8 @@ jobs:
           git tag ${{ steps.set-tag.outputs.release-tag }}
           TAG=$(git describe --tags --abbrev=0)
           echo "TAG= $TAG"
+        env: 
+          TAG: $(git describe --tags --abbrev=0)
 
       - name: Update tag in yaml
         run: |
