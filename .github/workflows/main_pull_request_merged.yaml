@@ -15,9 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
-          repository: anastasiia11071995/test-chatrs
+          repository: anastasiia11071995/test_chatrs
           ref: ${{ github.ref_name }}
-          ssh-key: ${{ secrets.CHATRS_KEY }}
+          ssh-key: ${{ secrets.CHATRS_KEY }}  
     
       - name: Set TAG environment variable
         run: |
