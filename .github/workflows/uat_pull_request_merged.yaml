@@ -54,7 +54,6 @@ jobs:
 
   update_yaml_uat:
     needs: build-and-deploy
-
     runs-on: ubuntu-latest
 
     steps:
