@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
-          repository: anastasiia11071995/play-code-charts
+          repository: anastasiia11071995/test-chatrs
           ref: ${{ github.ref_name }}
           ssh-key: ${{ secrets.CHATRS_KEY }}
     
