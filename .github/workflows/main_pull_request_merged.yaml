@@ -36,6 +36,8 @@ jobs:
           TAG: $(git describe --tags --abbrev=0)
 
       - name: Update tag in yaml
+        env: 
+          TAG: $(git describe --tags --abbrev=0)
         run: |
           echo "TAG= $TAG"
           yq -i ".image.tag = \"$TAG\"" values.${{ github.ref_name }}.yaml
