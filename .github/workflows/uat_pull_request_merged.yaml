@@ -80,7 +80,7 @@ jobs:
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}
         run: |  
-          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" "values\.${{ github.base_ref }}\.yaml"
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values."${{ github.base_ref }}".yaml
 
       - name: Configure Git
         run: |
@@ -90,6 +90,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add "values\.${{ github.base_ref }}\.yaml"
+          git add values."${{ github.base_ref }}".yaml
           git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.base_ref }}"
           git push origin "${{ github.base_ref }}"
