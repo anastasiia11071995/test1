@@ -4,38 +4,33 @@ on:
   push:
     branches:
       - main
-
 jobs:
-  update_yaml_main:
+  update_yaml_uat:
     runs-on: ubuntu-latest
-
     steps:
-    
+
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
           repository: anastasiia11071995/test_chatrs
-          ref: ${{ github.ref_name }}
-          ssh-key: ${{ secrets.CHATRS_KEY }}  
+          ref: dev
+          ssh-key: ${{ secrets.CHATRS_KEY }}      
 
       - name: Determine and set Docker Tag
         id: set-tag
         run: |
-          if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
-             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT      
-          else
-            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
-          fi
+            echo "release-tag= $(yq '.image.tag' values.dev.yaml)" >> $GITHUB_OUTPUT  
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}    
     
       - name: Git tag
         run: |
           git tag ${{ steps.set-tag.outputs.release-tag }}
       - name: Update tag in yaml
-        env: 
-          release-tag: ${{ steps.set-tag.outputs.release-tag }}
-        run: |
-          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.ref_name }}.yaml
-        
+        run: | 
+          git checkout uat 
+          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values."${{ github.ref_name }}".yaml
+
       - name: Configure Git
         run: |
           git config --global user.email "github-actions@github.com"
