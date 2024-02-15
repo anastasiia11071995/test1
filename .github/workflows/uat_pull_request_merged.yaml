@@ -1,9 +1,9 @@
-name: Deploy to MAIN
+name: Deploy to UAT
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - uat
 jobs:
   update_yaml_uat:
     runs-on: ubuntu-latest
@@ -23,9 +23,6 @@ jobs:
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}    
     
-      - name: Git tag
-        run: |
-          git tag ${{ steps.set-tag.outputs.release-tag }}
       - name: Update tag in yaml
         run: | 
           git checkout uat 
