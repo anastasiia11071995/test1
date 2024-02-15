@@ -1,11 +1,10 @@
-name: Deploy to UAT
+name: Deploy to MAIN
 on:
   workflow_dispatch:
   push:
     branches:
-      - uat
+      - main
 jobs:
-
   update_yaml_uat:
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +23,9 @@ jobs:
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}    
     
+      - name: Git tag
+        run: |
+          git tag ${{ steps.set-tag.outputs.release-tag }}
       - name: Update tag in yaml
         run: | 
           git checkout uat 
@@ -37,6 +39,6 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          git add values."${{ github.ref_name }}".yaml
-          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.ref_name }}"
-          git push origin "${{ github.ref_name }}"
+          git add values.${{ github.ref_name }}.yaml
+          git commit -m "Update image tag to $TAG in ${{ github.ref_name }}"
+          git push origin ${{ github.ref_name }}
