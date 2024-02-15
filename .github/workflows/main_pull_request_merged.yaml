@@ -21,7 +21,7 @@ jobs:
       - name: Determine and set Docker Tag
         id: set-tag
         run: |
-            echo "release-tag= $(yq '.image.tag' values.uat.yaml)" >> $GITHUB_OUTPUT  
+            echo "release-tag=$(yq '.image.tag' values.uat.yaml)" >> $GITHUB_OUTPUT  
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}    
 
