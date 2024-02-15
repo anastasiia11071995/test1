@@ -80,7 +80,7 @@ jobs:
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}
         run: |  
-          yq -i ".image.tag = \"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.ref_name }}.yaml
+          yq -i ".image.tag=\"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.ref_name }}.yaml
 
       - name: Configure Git
         run: |
