@@ -5,9 +5,21 @@ on:
     branches:
       - uat
   pull_request:
-    types:
-      - closed
+    branches:
+      - uat
 jobs:
+
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug event data
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event action: ${{ github.event.action }}"
+          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Merged: ${{ github.event.pull_request.merged }}"
+          echo "Head ref: ${{ github.event.pull_request.head.ref }}"
+
   update_yaml_uat:
     if: ${{ github.event_name == 'pull_request' && 
             github.event.action == 'closed' && 
