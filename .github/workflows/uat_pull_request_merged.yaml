@@ -98,7 +98,7 @@ jobs:
           echo "Merged: ${{ github.event.pull_request.merged }}"
           echo "Head ref: ${{ github.event.pull_request.head.ref }}"
 
-  update_yaml_uat:
+  update_uat:
     if: ${{ github.event_name == 'pull_request' && 
             github.event.action == 'closed' && 
             github.event.pull_request.base.ref == 'uat' && 
