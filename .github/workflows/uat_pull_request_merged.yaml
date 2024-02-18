@@ -21,7 +21,7 @@ jobs:
         uses: sergeysova/jq-action@v2
         with:
           cmd: |
-            echo "is_merged=$(jq '.pull_request.base.ref == \"dev\" and .pull_request.merged' "$GITHUB_EVENT_PATH")" >> $GITHUB_OUTPUT
+            echo "is_merged=$(jq '.pull_request.base.ref == \"dev\" and .pull_request.merged' \"$GITHUB_EVENT_PATH\")" >> $GITHUB_OUTPUT
   build-deploy-and-update:
     needs: check_merge
     if: needs.check_merge.outputs.merged == 'true'
