@@ -24,7 +24,7 @@ jobs:
          github.event.pull_request.merged == true &&
          github.event.pull_request.head.ref == 'dev'}}
         run: |
-          echo "is_merged=true" >> $GITHUB_ENV
+          echo "is_merged=true" >> $GITHUB_OUTPUT
  
       - name: Output is_merged
         run: echo "is_merged=${{ steps.merged-from-dev.outputs.is_merged }}"
