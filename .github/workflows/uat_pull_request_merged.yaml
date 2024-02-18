@@ -10,6 +10,7 @@ on:
     types:
       - closed
 jobs:
+
   build_and_update:
     if: ${{ github.event_name == 'pull_request' && 
         github.event.action == 'closed' && 
