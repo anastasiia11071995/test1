@@ -20,9 +20,8 @@ jobs:
         id: merged-from-dev
         uses: sergeysova/jq-action@v2
         with:
-          script: |
-            echo "is_merged=$(jq '.pull_request.base.ref == \"dev\" and .pull_request.merged' $GITHUB_EVENT_PATH)"
-
+          cmd: 
+            'echo "is_merged=$(jq ''.pull_request.base.ref == \"dev\" and .pull_request.merged'' $GITHUB_EVENT_PATH)"'
   build-deploy-and-update:
     needs: check_merge
     if: needs.check_merge.outputs.merged == 'true'
