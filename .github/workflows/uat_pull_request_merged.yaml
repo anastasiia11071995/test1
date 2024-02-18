@@ -18,18 +18,15 @@ jobs:
 
       - name: Determine if merged from dev
         id: merged-from-dev
-        uses: actions/github-script@v5
-        with:
-          script: |
-             if (github.event_name == 'pull_request' && github.event.action == 'closed') {
-              if (github.event.pull_request.base.ref == 'dev' && github.event.pull_request.merged == true) {
-                console.log('true');
-              } else {
-                console.log('false');
-              }
-             }
-
-
+        run: |
+          if [[ "${{ github.event_name }}" == 'pull_request' && "${{ github.event.action }}" == 'closed' ]]; then
+            if [[ "${{ github.event.pull_request.base.ref }}" == 'dev' && "${{ github.event.pull_request.merged }}" == true ]]; then
+              echo "true" >> $GITHUB_OUTPUT
+            else
+              echo "false" >> $GITHUB_OUTPUT
+            fi
+          fi
+             
   build-deploy-and-update:
     needs: check_merge
     if: needs.check_merge.outputs.merged == 'true'
