@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - uat
+    types:
+      - closed
 jobs:
 
   debug:
