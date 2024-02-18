@@ -11,7 +11,7 @@ on:
       - closed
 jobs:
 
-  build:
+  build_and_update:
     if: ${{ github.event_name == 'pull_request' && 
         github.event.action == 'closed' && 
         github.event.pull_request.base.ref == 'uat' && 
@@ -87,7 +87,16 @@ jobs:
           git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.ref_name }}"
           git push origin ${{ github.ref_name }}
   
-  
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug event data
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event action: ${{ github.event.action }}"
+          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Merged: ${{ github.event.pull_request.merged }}"
+          echo "Head ref: ${{ github.event.pull_request.head.ref }}"
 
   update_yaml_uat:
     if: ${{ github.event_name == 'pull_request' && 
