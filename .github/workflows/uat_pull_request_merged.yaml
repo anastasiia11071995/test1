@@ -18,7 +18,11 @@ jobs:
 
       - name: Determine if merged from dev
         id: merged-from-dev
-        if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.base.ref == 'dev' && github.event.pull_request.merged == true }}
+        if: ${{ github.event_name == 'pull_request' && 
+         github.event.action == 'closed' && 
+         github.event.pull_request.base.ref == 'uat' && 
+         github.event.pull_request.merged == true &&
+         github.event.pull_request.head.ref == 'dev'}}
         run: |
           echo "true" >> $GITHUB_OUTPUT
 
@@ -29,6 +33,7 @@ jobs:
             echo "Base ref: ${{ github.event.pull_request.base.ref }}"
             echo "Merged: ${{ github.event.pull_request.merged }}"
             echo "Condition evaluated to true. Writing 'true' to output."
+            echo "need dev: ${{ github.event.pull_request.head.ref}}"
             echo "true" >> $GITHUB_OUTPUT
 
 
