@@ -39,7 +39,7 @@ jobs:
              
   build-deploy-and-update:
     needs: check_merge
-    if: needs.check_merge.outputs.merged == 'true'
+    if: needs.check_merge.outputs.is_merged == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -95,7 +95,7 @@ jobs:
       - name: Determine and set Docker Tag
         id: set-tag1
         run: |
-          if: needs.check_merge.outputs.merged == 'true'; then
+          if: needs.check_merge.outputs.is_merged == 'true' == 'true'; then
             echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
           else  
             echo "release-tag=$(yq '.image.tag' values.dev.yaml)" >> $GITHUB_OUTPUT  
