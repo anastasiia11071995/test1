@@ -18,7 +18,8 @@ jobs:
 
       - name: Determine if merged from dev
         id: merged-from-dev
-        run: echo "is_merged=$(jq '.pull_request.base.ref == \"dev\" and .pull_request.merged' $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
+        run: |
+          echo "is_merged=$(jq '.pull_request.base.ref == \"dev\" and .pull_request.merged' $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
 
   build-deploy-and-update:
     needs: check_merge
