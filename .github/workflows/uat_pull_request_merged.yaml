@@ -24,7 +24,7 @@ jobs:
          github.event.pull_request.merged == true &&
          github.event.pull_request.head.ref == 'dev'}}
         run: |
-          echo "true" >> $GITHUB_OUTPUT
+          echo "::set-output name=is_merged::true"
 
       - name: Debug Event Data
         run: |
