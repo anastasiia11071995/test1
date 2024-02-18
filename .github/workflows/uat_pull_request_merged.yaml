@@ -4,10 +4,69 @@ on:
   push:
     branches:
       - uat
+  pull_request:
+    types: [closed]    
 jobs:
-  update_yaml_uat:
+
+  check_merge:
+    runs-on: ubuntu-latest
+    outputs:
+      merged: ${{ steps.merged-from-dev.outputs.is_merged }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine if merged from dev
+        id: merged-from-dev
+        run: echo "is_merged=$(jq '.pull_request.base.ref == \"dev\" and .pull_request.merged' $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
+
+  build-deploy-and-update:
+    needs: check_merge
+    if: needs.check_merge.outputs.merged == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: Determine and set Docker Tag
+        id: set-tag
+        run: |
+          if [[ "${{ github.head_ref }}" =~ ^release/ ]]; then
+             echo "release-tag=$(echo "$(echo ${{ github.head_ref }} | sed 's/^release\///')")" >> $GITHUB_OUTPUT      
+          else
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        env: 
+          release-tag: ${{ steps.set-tag.outputs.release-tag }}
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
+            ghcr.io/${{ github.repository_owner }}/test1:${{ github.ref_name }}_latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -19,7 +78,11 @@ jobs:
       - name: Determine and set Docker Tag
         id: set-tag
         run: |
+          if: needs.check_merge.outputs.merged == 'true'; then
+            echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
+          else  
             echo "release-tag=$(yq '.image.tag' values.dev.yaml)" >> $GITHUB_OUTPUT  
+          fi  
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}    
     
