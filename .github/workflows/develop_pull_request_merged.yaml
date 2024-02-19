@@ -1,9 +1,8 @@
 name: Deploy to DEV
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - dev
+  pull_request:
+    branches: [dev]
+    types: [closed]
 jobs:
 
   build-and-deploy:
@@ -91,5 +90,5 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.${{ github.ref_name }}.yaml
-          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.ref_name }}"
+          git commit -m "Branch ${{ github.head_ref }} was deployed to ${{ github.ref_name }} by ${{ github.triggering_actor }} at ${{ github.event.pull_request.merged_at }}" -m "new docker tag is: ${{ steps.set-tag.outputs.release-tag }}" -m "Link to PR: ${{ github.event.pull_request._links.html.href }}"
           git push origin ${{ github.ref_name }}
