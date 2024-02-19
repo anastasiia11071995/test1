@@ -42,7 +42,7 @@ jobs:
           ref: dev
           ssh-key: ${{ secrets.CHATRS_KEY }}
           path: charts
-          
+
       - name: Determine and set Docker Tag
         id: set-tag
         run: |
@@ -58,6 +58,7 @@ jobs:
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}
         with:
+          context: code
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/test1:${{ steps.set-tag.outputs.release-tag }},
@@ -69,6 +70,7 @@ jobs:
         env: 
           release-tag: ${{ steps.set-tag.outputs.release-tag }}
         run: | 
+          cd charts
           git fetch
           git checkout ${{ github.ref_name }}
           yq -i ".image.tag=\"${{ steps.set-tag.outputs.release-tag }}\"" values.${{ github.ref_name }}.yaml
