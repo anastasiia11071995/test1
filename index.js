@@ -16,5 +16,5 @@ else head = headFile
 http.createServer((req, res) => {
     res.end(os.hostname + ' ' + head)
 }).listen(PORT, ()=> {
-    console.log('Listening on port', PORT)
+    console.log('Listening on port ', PORT)
 })
