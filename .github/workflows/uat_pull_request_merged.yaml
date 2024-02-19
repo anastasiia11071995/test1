@@ -51,7 +51,7 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.head_ref }}" = dev ]]; then
-            echo "release-tag=$(yq '.image.tag' values.dev.yaml)" >> $GITHUB_OUTPUT
+            echo "release-tag=$(yq '.image.tag' charts/values.dev.yaml)" >> $GITHUB_OUTPUT
           else
             echo "release-tag=v_${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
