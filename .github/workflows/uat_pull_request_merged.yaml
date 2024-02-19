@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           repository: anastasiia11071995/test_chatrs
-          ref: ${{ github.head_ref }}
+          ref: dev
           ssh-key: ${{ secrets.CHATRS_KEY }}
 
       - name: Determine and set Docker Tag
