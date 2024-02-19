@@ -6,6 +6,7 @@ on:
     types:
       - closed
 jobs:
+
   build_and_update:
     if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
