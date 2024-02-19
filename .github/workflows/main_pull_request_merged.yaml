@@ -6,12 +6,10 @@ on:
     types:
       - closed
 jobs:
-
   build_and_update:
     if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
-    steps:
-      
+    steps:      
       - name: Check out code
         if: ${{ github.head_ref != 'uat' }}
         uses: actions/checkout@v4
