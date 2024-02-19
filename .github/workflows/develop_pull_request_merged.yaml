@@ -89,10 +89,8 @@ jobs:
     
       - name: Commit and push changes
         run: |
-          echo ${{ toJson(github.event.pull_request) }}
-          # git add values.${{ github.ref_name }}.yaml
-          # git commit -m "Branch ${{ github.head_ref }} was deployed to ${{ github.ref_name }} by ${{ github.triggering_actor }} at ${{ github.event.pull_request.merged_at }}" \ 
-          #            -m "new docker tag is: ${{ steps.set-tag.outputs.release-tag }}" \
-          #            -m "Link to PR: ${{ github.event.pull_request._links.self.href }}" \
-          #            -m "Link to branch ${{ github.ref_name }}: " \
-          # git push origin ${{ github.ref_name }}
+          git add values.${{ github.ref_name }}.yaml
+          git commit -m "Branch ${{ github.head_ref }} was deployed to ${{ github.ref_name }} by ${{ github.triggering_actor }} at ${{ github.event.pull_request.merged_at }}" \ 
+                     -m "new docker tag is: ${{ steps.set-tag.outputs.release-tag }}" \
+                     -m "Link to PR: ${{ github.event.pull_request._links.html.href }}"
+          git push origin ${{ github.ref_name }}
