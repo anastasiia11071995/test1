@@ -11,6 +11,11 @@ jobs:
     if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
     steps:
+      
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          path: code
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -36,7 +41,8 @@ jobs:
           repository: anastasiia11071995/test_chatrs
           ref: dev
           ssh-key: ${{ secrets.CHATRS_KEY }}
-
+          path: charts
+          
       - name: Determine and set Docker Tag
         id: set-tag
         run: |
@@ -76,6 +82,6 @@ jobs:
       - name: Commit and push changes
         run: |
           git add values.${{ github.ref_name }}.yaml
-          git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.ref_name }}"
+          git commit -m "Branch ${{ github.head_ref }} was deployed to ${{ github.ref_name }} by ${{ github.triggering_actor }} at ${{ github.event.pull_request.merged_at }}" -m "new docker tag is: ${{ steps.set-tag.outputs.release-tag }}" -m "Link to PR: ${{ github.event.pull_request._links.html.href }}"
           git push origin ${{ github.ref_name }}
           
