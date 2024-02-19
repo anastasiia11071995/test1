@@ -6,6 +6,7 @@ on:
     types:
       - closed
 jobs:
+
   build_and_update:
     if: ${{ github.event.pull_request.merged == true }}
     runs-on: ubuntu-latest
@@ -77,3 +78,4 @@ jobs:
           git add values.${{ github.ref_name }}.yaml
           git commit -m "Update image tag to ${{ steps.set-tag.outputs.release-tag }} in ${{ github.ref_name }}"
           git push origin ${{ github.ref_name }}
+          
